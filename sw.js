@@ -1,9 +1,10 @@
 /* Memory Jar service worker.
    Keeps an offline copy of the four app files and nothing else.
-   Updating is manual: uninstall the app, clear the site data in Chrome,
-   then install again. Nothing here checks for a new version on its own. */
+   Raising the number in CACHE makes phones fetch a fresh copy.
+   Do NOT clear the site data in Chrome: Garden Diary and Boundaries share this
+   web address, and clearing it would wipe their data too. */
 
-var CACHE = 'memory-jar-v22';
+var CACHE = 'memory-jar-v23';
 
 var FILES = [
   './',
@@ -23,7 +24,8 @@ self.addEventListener('activate', function(ev){
   ev.waitUntil(
     caches.keys().then(function(names){
       return Promise.all(names.map(function(n){
-        if(n !== CACHE) return caches.delete(n);
+        // only this app's own old copies; other apps share this address
+        if(n.indexOf('memory-jar-') === 0 && n !== CACHE) return caches.delete(n);
       }));
     })
   );
